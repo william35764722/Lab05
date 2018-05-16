@@ -1,0 +1,60 @@
+#include <Keypad.h>
+#include "SevSeg.h"
+SevSeg sevseg; 
+const byte ROWS = 4; // 4 Rows
+const byte COLS = 4; // 4 Columns
+byte i;
+// 定義 Keypad 的按鍵
+char keys[ROWS][COLS] = {{'7','4','1','0'}, {'8','5','2','A'},
+                          {'9','6','3','B'}, {'C','D','E','F'}};
+// 定義 Keypad 連到 Arduino 的接腳
+byte rowPins[ROWS] = {5, 4, 3, 2};
+// 連到 Keypad 的 4 個 Rows
+byte colPins[COLS] = {10,9, 8,7};
+// 連到 Keypad 的 4 個 Columns
+// 建立 Keypad 物件
+Keypad keypad =Keypad( makeKeymap(keys), rowPins,colPins, ROWS, COLS );
+byte numDigits = 1;
+byte digitPins[] = {2};
+byte segmentPins[] = {11,12,13,14,15,16,17};
+byte num[10]=
+{
+  B0111111,//0   GFEDCBA
+  B0000110,//1
+  B1011011,//2
+  B1001111,//3
+  B1100110,//4
+  B1101101,//5
+  B1111101,//6
+  B0000111,//7
+  B1111111,//8
+  B1101111 //9 
+ };
+void setup()
+{
+Serial.begin(9600);
+
+ for(i=0;i<8;i++)
+    for(i=0;i<8;i++)
+    pinMode(segmentPins[i],OUTPUT);  
+sevseg.begin(COMMON_ANODE, numDigits, digitPins,
+segmentPins);
+}
+void loop()
+{
+char key = keypad.getKey(); // 讀取 Keypad的輸入
+
+if (key != NO_KEY)
+{
+  int Value=key-48,i;
+Serial.println(key);
+for(i=0;i<7;i++)
+{
+       for(i=0;i<7;i++)
+        if(bitRead(num[Value],i))
+          digitalWrite(segmentPins[i],1);  
+        else
+          digitalWrite(segmentPins[i],0);
+      }
+}
+}
